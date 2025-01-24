@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "your-dockerhub-username/your-app:${BUILD_NUMBER}"
+        GIT_REPO_URL = "https://github.com/your-repo/your-app.git"
+        CLONE_REPO_URL = "https://github.com/your-repo/another-repo.git"
+    }
+
+    stages {
+        stage('Git Checkout') {
+            steps {
+                echo "Checking out the repository..."
+                checkout scm
+            }
+        }
+
+        stage('Git Clone & Change Directory') {
+            steps {
+                echo "Cloning another repository..."
+                sh '''
+                    git clone ${CLONE_REPO_URL}
+                    cd another-repo
+                '''
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo "Building Docker image..."
+                sh "docker build -t ${DOCKER_IMAGE} ."
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                echo "Pushing Docker image to registry..."
+                withCredentials([usernamePassword(credentialsId: 'docker-cred', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push ${DOCKER_IMAGE}
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo "Deploying to Kubernetes cluster..."
+                withKubeConfig(credentialsId: 'k8s-cluster-cred') {
+                    sh '''
+                        kubectl set image deployment/your-deployment your-container=${DOCKER_IMAGE}
+                        kubectl rollout status deployment/your-deployment
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline completed."
+        }
+        success {
+            echo "Pipeline executed successfully!"
+        }
+        failure {
+            echo "Pipeline failed. Please check the logs."
+        }
+    }
+}
