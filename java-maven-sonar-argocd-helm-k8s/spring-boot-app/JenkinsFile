@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "your-dockerhub-username/your-app:${BUILD_NUMBER}"
-        GIT_REPO_URL = "https://github.com/your-repo/your-app.git"
-        CLONE_REPO_URL = "https://github.com/your-repo/another-repo.git"
+        DOCKER_IMAGE = "nithin246/cicd-test:${BUILD_NUMBER}"
+        GIT_REPO_URL = "https://github.com/Nithin-ns24/Jenkins-Zero-To-Hero.git"
+        CLONE_REPO_URL = "https://github.com/Nithin-ns24/Jenkins-Zero-To-Hero.git"
     }
 
     stages {
@@ -20,7 +20,7 @@ pipeline {
                 echo "Cloning another repository..."
                 sh '''
                     git clone ${CLONE_REPO_URL}
-                    cd another-repo
+                    cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
                 '''
             }
         }
