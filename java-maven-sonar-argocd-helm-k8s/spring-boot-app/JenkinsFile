@@ -15,13 +15,16 @@ pipeline {
             }
         }
 
-        stage('Git Clone & Change Directory') {
+        stage('Clone Repository') {
             steps {
-                echo "Cloning another repository..."
-                sh '''
-                    git clone ${CLONE_REPO_URL}
-                    cd java-maven-sonar-argocd-helm-k8s/spring-boot-app
-                '''
+                git branch: 'main',
+                    credentialsId: 'github-1',
+                    url: 'https://github.com/Nithin-ns24/Jenkins-Zero-To-Hero.git'
+            }
+        }
+        stage('Change Directory') {
+            steps {
+                sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app'
             }
         }
 
