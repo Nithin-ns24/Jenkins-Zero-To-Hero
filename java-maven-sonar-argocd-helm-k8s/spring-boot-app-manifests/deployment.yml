@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: spring-boot-app
-        image: abhishekf5/ultimate-cicd:replaceImageTag
+        image: nithin246/cicd-test:replaceImageTag # This will be dynamically updated in the pipeline
         ports:
         - containerPort: 8080
